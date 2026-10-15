@@ -17,7 +17,7 @@ use windows::{
 };
 
 // ==================== PENGATURAN UTAMA ====================
-const ROOT_FOLDER: &str = r"G:\My Drive\notaris bu sri\Pihak Kedua - Copy";
+const ROOT_FOLDER: &str = r"G:\My Drive\notaris bu sri\Pihak Kedua";
 
 // Daftar 10 nama file yang sudah benar (agar tidak diproses ulang oleh pemantau folder)
 const NAMA_SUDAH_BENAR: [&str; 10] = [
@@ -33,14 +33,27 @@ const NAMA_SUDAH_BENAR: [&str; 10] = [
     "sertifikat.pdf",
 ];
 
-// Folder arsip yang diabaikan agar tidak diproses ulang
-const FOLDER_DIABAIKAN: [&str; 3] = ["finish", "revisi", "old data"];
+/// Memeriksa apakah folder dikecualikan:
+/// Folder dikecualikan jika namanya tidak berhuruf kapital semua (memuat huruf kecil seperti 'finish', 'old data', 'revisi', dll.)
+fn is_folder_dikecualikan(path: &Path) -> bool {
+    let Ok(rel) = path.strip_prefix(ROOT_FOLDER) else {
+        return false;
+    };
 
-fn is_diabaikan(path: &Path) -> bool {
-    path.components().any(|c| {
-        let s = c.as_os_str().to_string_lossy().to_lowercase();
-        FOLDER_DIABAIKAN.iter().any(|&f| s == f)
-    })
+    for comp in rel.components() {
+        let name = comp.as_os_str().to_string_lossy();
+        // Lewati jika ini adalah nama berkas PDF
+        if name.to_lowercase().ends_with(".pdf") {
+            continue;
+        }
+
+        // Jika nama folder memiliki huruf kecil (artinya tidak berhuruf kapital semua)
+        if name.chars().any(|c| c.is_lowercase()) {
+            return true;
+        }
+    }
+
+    false
 }
 // ==========================================================
 
@@ -118,19 +131,30 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
     }
 
     // 7. KK.pdf
-    if t.contains("KARTU KELUARGA") || t.contains("NAMA KEPALA KELUARGA") {
+    if t.contains("KARTU KELUARGA")
+        || t.contains("NAMA KEPALA KELUARGA")
+        || t.contains("KEPALA KELUARGA")
+        || ((t.contains("KEPALA") || t.contains("PENCATATAN SIPIL") || t.contains("KEPENDUDUKAN"))
+            && (t.contains("RT/RW") || t.contains("ALAMAT"))
+            && (t.contains("AYAH") || t.contains("IBU") || t.contains("HUBUNGAN") || t.contains("LAHIR")))
+    {
         return Some("KK");
     }
 
     // 8. KTP.pdf
-    if (t.contains("JENIS KELAMIN")
-        || t.contains("SEUMUR HIDUP")
-        || t.contains("STATUS PERKAWINAN")
-        || t.contains("KEWARGANEGARAAN")
-        || t.contains("TEMPAT/TGL LAHIR")
-        || t.contains("GOL. DARAH"))
-        && (t.contains("NIK") || t.contains("PROVINSI") || t.contains("KABUPATEN"))
-    {
+    let is_ktp = t.contains("KARTU TANDA PENDUDUK")
+        || t.contains("SEUMUR")
+        || t.contains("SEIJMUR")
+        || (t.contains("NIK") && (t.contains("33") || t.contains("PROVINSI") || t.contains("KABUPATEN") || t.contains("KOTA") || t.contains("AGAMA") || t.contains("KAWIN") || t.contains("WARGA")))
+        || ((t.contains("PROVINSI") || t.contains("PROV")) && (t.contains("KABUPATEN") || t.contains("PATI") || t.contains("DEMAK") || t.contains("GROBOGAN") || t.contains("SEMARANG")))
+        || ((t.contains("JENIS KELAMIN")
+            || t.contains("STATUS PERKAWINAN")
+            || t.contains("KEWARGANEGARAAN")
+            || t.contains("TEMPAT/TGL LAHIR")
+            || t.contains("GOL. DARAH"))
+            && (t.contains("NIK") || t.contains("PROVINSI") || t.contains("KABUPATEN") || t.contains("INDONESIA")));
+
+    if is_ktp {
         return Some("KTP");
     }
 
@@ -146,6 +170,8 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
     if t.contains("SERTIPIKAT HAK")
         || t.contains("SERTIFIKAT HAK")
         || (t.contains("PEMEGANG HAK") && t.contains("BIDANG TANAH"))
+        || ((t.contains("SERTIPIKAT") || t.contains("SERTIFIKAT"))
+            && (t.contains("PERTANAHAN") || t.contains("AGRARIA") || t.contains("DAFTAR ISIAN") || t.contains("SURAT UKUR") || t.contains("BADAN PERTANAHAN")))
     {
         return Some("Sertifikat");
     }
@@ -228,7 +254,7 @@ async fn proses_satu_berkas(path: &Path, engine: &OcrEngine) {
         return;
     }
 
-    if is_diabaikan(path) {
+    if is_folder_dikecualikan(path) {
         return;
     }
 
@@ -281,7 +307,7 @@ async fn proses_satu_berkas(path: &Path, engine: &OcrEngine) {
     }
 }
 
-/// Memindai file-file PDF yang sudah ada di dalam folder saat aplikasi baru pertama kali dijalankan
+/// Memindai seluruh folder klien berhuruf kapital saat aplikasi baru pertama kali dijalankan
 async fn pindai_folder_awal(
     dir: &Path,
     tx: &mpsc::Sender<PathBuf>,
@@ -291,11 +317,11 @@ async fn pindai_folder_awal(
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
-            if !is_diabaikan(&path) {
+            if !is_folder_dikecualikan(&path) {
                 Box::pin(pindai_folder_awal(&path, tx, sedang_diproses)).await;
             }
         } else if path.is_file() {
-            if is_diabaikan(&path) {
+            if is_folder_dikecualikan(&path) {
                 continue;
             }
             if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
@@ -342,7 +368,7 @@ async fn main() -> notify::Result<()> {
     let sedang_diproses: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
     let sedang_diproses_watcher = Arc::clone(&sedang_diproses);
 
-    // Pindai berkas yang sudah ada di background tanpa memblokir watcher
+    // Pindai berkas yang belum berformat benar di seluruh folder klien
     let tx_scan = tx.clone();
     let sedang_diproses_scan = Arc::clone(&sedang_diproses);
     tokio::spawn(async move {
@@ -354,7 +380,7 @@ async fn main() -> notify::Result<()> {
             if let Ok(event) = res {
                 if matches!(event.kind, EventKind::Create(_) | EventKind::Modify(_)) {
                     for path in event.paths {
-                        if is_diabaikan(&path) {
+                        if is_folder_dikecualikan(&path) {
                             continue;
                         }
                         if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
@@ -384,6 +410,8 @@ async fn main() -> notify::Result<()> {
     println!("======================================================");
     println!(" AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) ");
     println!(" Memantau Folder : {}", ROOT_FOLDER);
+    println!(" Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)");
+    println!(" Memeriksa seluruh folder aktif dan mengubah nama file...");
     println!("======================================================");
 
     while let Some(path) = rx.recv().await {
