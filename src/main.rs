@@ -67,6 +67,23 @@ async fn tunggu_file_siap(path: &Path) -> bool {
     false
 }
 
+/// Menunggu seluruh berkas PDF di dalam folder selesai ditulis
+async fn tunggu_semua_file_siap(folder: &Path) -> bool {
+    let Ok(entries) = fs::read_dir(folder) else { return true; };
+    for entry in entries.flatten() {
+        let p = entry.path();
+        if p.is_file() && p.extension().and_then(|e| e.to_str()).map(|e| e.to_lowercase()) == Some("pdf".to_string()) {
+            let name = p.file_name().unwrap_or_default().to_string_lossy();
+            if !name.starts_with("_temp_") {
+                if !tunggu_file_siap(&p).await {
+                    return false;
+                }
+            }
+        }
+    }
+    true
+}
+
 /// Mencocokkan teks hasil OCR dengan 10 jenis dokumen standar notaris
 fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
     let t = teks_mentah.to_uppercase();
@@ -409,7 +426,7 @@ fn pisahkan_bundel_pdf(path: &Path, groups: &[(&'static str, Vec<u32>)]) -> bool
     let file_name = path.file_name().unwrap_or_default().to_string_lossy();
 
     catat_log(&format!(
-        " -> [BERKAS BUNDEL TERDETEKSI] Berkas '{}' memuat {} dokumen berbeda. Memulai pemisahan berkas...",
+        "     [BERKAS BUNDEL TERDETEKSI] Berkas '{}' memuat {} dokumen berbeda. Memulai pemisahan berkas...",
         file_name, groups.len()
     ));
 
@@ -430,21 +447,21 @@ fn pisahkan_bundel_pdf(path: &Path, groups: &[(&'static str, Vec<u32>)]) -> bool
         let temp_path = parent_dir.join(&temp_name);
 
         if let Err(e) = extract_pages(path, &temp_path, pages) {
-            catat_log(&format!("    [Gagal Ekstrak] Dokumen {} halaman {:?}: {}", jenis, pages, e));
+            catat_log(&format!("       [Gagal Ekstrak] Dokumen {} halaman {:?}: {}", jenis, pages, e));
             semua_sukses = false;
             let _ = fs::remove_file(&temp_path);
             break;
         }
 
         if let Err(e) = fs::rename(&temp_path, &target_path) {
-            catat_log(&format!("    [Gagal Simpan] {} -> {}: {}", temp_name, target_name, e));
+            catat_log(&format!("       [Gagal Simpan] {} -> {}: {}", temp_name, target_name, e));
             let _ = fs::remove_file(&temp_path);
             semua_sukses = false;
             break;
         }
 
         catat_log(&format!(
-            "    * Berhasil dipisahkan: '{}' (halaman {:?}) -> {:?}",
+            "       * Berhasil dipisahkan: '{}' (halaman {:?}) -> {:?}",
             jenis, pages, target_path.file_name().unwrap()
         ));
         target_tercipta.push(target_path);
@@ -452,89 +469,20 @@ fn pisahkan_bundel_pdf(path: &Path, groups: &[(&'static str, Vec<u32>)]) -> bool
 
     if semua_sukses {
         if let Err(e) = fs::remove_file(path) {
-            catat_log(&format!("    [Peringatan] Gagal menghapus berkas bundel asal '{}': {}", file_name, e));
+            catat_log(&format!("       [Peringatan] Gagal menghapus berkas bundel asal '{}': {}", file_name, e));
         } else {
-            catat_log(&format!(" -> SUKSES! Seluruh {} dokumen berhasil dipisahkan dan berkas bundel '{}' telah dibersihkan.", groups.len(), file_name));
+            catat_log(&format!("     -> SUKSES! Seluruh {} dokumen berhasil dipisahkan dan berkas bundel '{}' telah dibersihkan.", groups.len(), file_name));
         }
         true
     } else {
-        catat_log(" -> Pemisahan berkas bundel belum lengkap. Berkas asal tetap dipertahankan.");
+        catat_log("     -> Pemisahan berkas bundel belum lengkap. Berkas asal tetap dipertahankan.");
         false
     }
 }
 
-async fn proses_satu_berkas(path: &Path, engine: &OcrEngine) {
-    if !path.exists() {
-        return;
-    }
-
-    if is_folder_dikecualikan(path) {
-        return;
-    }
-
-    let Some(file_name) = path.file_name().and_then(|n| n.to_str()) else { return };
-    let Some(parent_dir) = path.parent() else { return };
-
-    // Jangan proses file yang berada tepat di ROOT_FOLDER (hanya proses yang ada di dalam sub-folder klien)
-    if parent_dir == Path::new(ROOT_FOLDER) {
-        return;
-    }
-
-    let nama_klien = parent_dir
-        .file_name()
-        .and_then(|n| n.to_str())
-        .unwrap_or("Klien");
-
-    catat_log(&format!("\n[Mendeteksi Berkas Baru] Folder: {} | File: {}", nama_klien, file_name));
-
-    if !tunggu_file_siap(path).await {
-        catat_log(" -> Dilewati: File masih dikunci aplikasi lain.");
-        return;
-    }
-
-    let path_clone = path.to_path_buf();
-    let engine_clone = engine.clone();
-
-    // Jalankan OCR dan analisis di thread pool blocking
-    let hasil = tokio::task::spawn_blocking(move || {
-        analisis_pdf(&path_clone, &engine_clone)
-    })
-    .await
-    .unwrap_or(HasilAnalisisPdf::TidakDikenali);
-
-    match hasil {
-        HasilAnalisisPdf::TidakDikenali => {
-            catat_log(&format!(" -> Kata kunci tidak dikenali, nama file dibiarkan tetap: {}", file_name));
-        }
-        HasilAnalisisPdf::Tunggal(nama_baru) => {
-            let mut target_path = parent_dir.join(format!("{}.pdf", nama_baru));
-            let mut counter = 2;
-
-            // Jika di dalam folder yang sama ada lebih dari 1 file sejenis (misal 2 KTP), berikutnya dinamai KTP_2.pdf
-            while target_path.exists() && target_path != path {
-                target_path = parent_dir.join(format!("{}_{}.pdf", nama_baru, counter));
-                counter += 1;
-            }
-
-            if target_path != path {
-                match fs::rename(path, &target_path) {
-                    Ok(_) => catat_log(&format!(" -> SUKSES diubah menjadi: {:?}", target_path.file_name().unwrap())),
-                    Err(e) => catat_log(&format!(" -> Gagal mengubah nama file: {}", e)),
-                }
-            }
-        }
-        HasilAnalisisPdf::Bundel(groups) => {
-            let path_clone = path.to_path_buf();
-            tokio::task::spawn_blocking(move || {
-                pisahkan_bundel_pdf(&path_clone, &groups);
-            })
-            .await
-            .unwrap_or(());
-        }
-    }
-}
-
-/// Mengaudit dan memperbaiki nama file dalam satu folder secara aman dengan pemisahan bundel & teknik 2-fase rename
+/// Mengaudit folder klien secara terstruktur:
+/// - TAHAP 1: Memeriksa dan memisahkan berkas gabungan (bundel multi-dokumen) terlebih dahulu
+/// - TAHAP 2: Memeriksa dan menyesuaikan nama berkas tunggal (AJB, Sertipikat, dll)
 fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     let folder_name = folder.file_name().unwrap_or_default().to_string_lossy();
     let Ok(entries) = fs::read_dir(folder) else { return 0; };
@@ -558,19 +506,26 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
 
     let mut diperbaiki = 0;
 
-    // Langkah 1: Deteksi dan pisahkan berkas bundel jika ada
-    for file_path in files_pdf {
+    // =========================================================================
+    // TAHAP 1: MEMERIKSA & MEMISAHKAN FILE GABUNGAN (BUNDEL) TERLEBIH DAHULU
+    // =========================================================================
+    catat_log(&format!("\n[Memproses Folder Klien: '{}']", folder_name));
+    catat_log("  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...");
+    let mut ada_bundel = false;
+
+    for file_path in &files_pdf {
         let file_name = file_path.file_name().unwrap().to_string_lossy().to_string();
         let lower = file_name.to_lowercase();
         let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
             lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
         });
 
-        // Jika nama file belum standar, periksa apakah bundel
+        // Hanya periksa berkas yang namanya belum standar
         if !sudah_benar {
-            match analisis_pdf(&file_path, engine) {
+            match analisis_pdf(file_path, engine) {
                 HasilAnalisisPdf::Bundel(groups) => {
-                    if pisahkan_bundel_pdf(&file_path, &groups) {
+                    ada_bundel = true;
+                    if pisahkan_bundel_pdf(file_path, &groups) {
                         diperbaiki += groups.len();
                     }
                 }
@@ -579,7 +534,14 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         }
     }
 
-    // Refresh daftar berkas di folder setelah pemisahan bundel
+    if !ada_bundel {
+        catat_log("     (Tidak ada file gabungan yang perlu dipisahkan)");
+    }
+
+    // =========================================================================
+    // TAHAP 2: PENGECEKAN & PERBAIKAN NAMA BERKAS (AJB, SERTIPIKAT, DLL)
+    // =========================================================================
+    catat_log("  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...");
     let Ok(entries_after) = fs::read_dir(folder) else { return diperbaiki; };
     let mut files_to_audit = Vec::new();
     for entry in entries_after.flatten() {
@@ -594,7 +556,6 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         }
     }
 
-    // Langkah 2: Audit berkas tunggal yang belum tepat namanya
     let mut hasil_deteksi: Vec<(PathBuf, String, &'static str)> = Vec::new();
     for file_path in &files_to_audit {
         let file_name = file_path.file_name().unwrap().to_string_lossy().to_string();
@@ -604,7 +565,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
             }
             HasilAnalisisPdf::Bundel(_) => {}
             HasilAnalisisPdf::TidakDikenali => {
-                catat_log(&format!("  [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name));
+                catat_log(&format!("     [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name));
             }
         }
     }
@@ -637,10 +598,11 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     }
 
     if rencana_ubah.is_empty() {
+        catat_log("     Semua nama berkas sudah tepat.");
         return diperbaiki;
     }
 
-    catat_log(&format!("  [Audit Folder] '{}': Ditemukan {} berkas yang salah nama. Memperbaiki...", folder_name, rencana_ubah.len()));
+    catat_log(&format!("     Ditemukan {} berkas yang salah nama. Memperbaiki...", rencana_ubah.len()));
 
     // Fase 1: Pindahkan ke nama sementara untuk menghindari benturan nama
     let mut temp_items: Vec<(PathBuf, PathBuf)> = Vec::new();
@@ -648,7 +610,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         let temp_name = format!("_temp_audit_{}_{}.pdf", i, current_path.file_stem().unwrap().to_string_lossy());
         let temp_path = folder.join(&temp_name);
         if let Err(e) = fs::rename(&current_path, &temp_path) {
-            catat_log(&format!("    [Gagal Temp] {} -> {}: {}", current_name, temp_name, e));
+            catat_log(&format!("       [Gagal Temp] {} -> {}: {}", current_name, temp_name, e));
             continue;
         }
         temp_items.push((temp_path, final_target));
@@ -668,10 +630,10 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
 
         match fs::rename(&temp_path, &final_target) {
             Ok(_) => {
-                catat_log(&format!("    * Berhasil diubah -> {}", target_name));
+                catat_log(&format!("       * Berhasil diubah -> {}", target_name));
                 diperbaiki += 1;
             }
-            Err(e) => catat_log(&format!("    * Gagal mengubah ke {}: {}", target_name, e)),
+            Err(e) => catat_log(&format!("       * Gagal mengubah ke {}: {}", target_name, e)),
         }
     }
 
@@ -717,8 +679,8 @@ fn audit_semua_folder_aktif(engine: &OcrEngine) {
     catat_log("------------------------------------------------------");
     catat_log("[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...");
     catat_log("Tiap berkas diperiksa ulang isinya menggunakan OCR.");
-    catat_log("Jika ada berkas bundel multi-dokumen, akan dipisahkan otomatis.");
-    catat_log("Jika ada nama file yang masih salah, akan diperbaiki otomatis.");
+    catat_log("Tahap 1: Memisahkan file gabungan (bundel).");
+    catat_log("Tahap 2: Menyesuaikan nama berkas tunggal (AJB, Sertipikat, dll).");
     catat_log("------------------------------------------------------");
 
     let root = Path::new(ROOT_FOLDER);
@@ -741,7 +703,7 @@ async fn main() -> notify::Result<()> {
     catat_log("======================================================");
     catat_log(" AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) ");
     catat_log(&format!(" Memantau Folder : {}", ROOT_FOLDER));
-    catat_log(" Fitur           : Pemisahan Bundel Multi-Dokumen & Auto-Rename");
+    catat_log(" Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename");
     catat_log(" Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)");
     catat_log("======================================================");
 
@@ -776,13 +738,8 @@ async fn main() -> notify::Result<()> {
     .await
     .unwrap_or(());
 
-    // 2. Siapkan antrean terpisah untuk berkas baru dan folder yang baru di-rename menjadi kapital
-    let (tx_file, mut rx_file) = mpsc::channel::<PathBuf>(1000);
+    // 2. Siapkan pemantau realtime folder-based dengan urutan 2-tahap
     let (tx_folder, mut rx_folder) = mpsc::channel::<PathBuf>(100);
-
-    let sedang_diproses_file: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
-    let sedang_diproses_file_watcher = Arc::clone(&sedang_diproses_file);
-
     let sedang_diproses_folder: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
     let sedang_diproses_folder_watcher = Arc::clone(&sedang_diproses_folder);
 
@@ -795,37 +752,35 @@ async fn main() -> notify::Result<()> {
                             continue;
                         }
 
-                        // KASUS A: Event pada FOLDER (misal: folder baru dibuat atau DI-RENAME menjadi huruf kapital)
-                        let is_dir = path.is_dir()
-                            || (!path.to_string_lossy().to_lowercase().ends_with(".pdf") && path.exists());
-
-                        if is_dir && path != Path::new(ROOT_FOLDER) {
-                            let mut set = sedang_diproses_folder_watcher.lock().unwrap();
-                            if !set.contains(&path) {
-                                set.insert(path.clone());
-                                let _ = tx_folder.blocking_send(path.clone());
+                        let client_folder = if path.is_dir() {
+                            path.clone()
+                        } else {
+                            match path.parent() {
+                                Some(p) => p.to_path_buf(),
+                                None => continue,
                             }
+                        };
+
+                        if client_folder == Path::new(ROOT_FOLDER) || is_folder_dikecualikan(&client_folder) {
                             continue;
                         }
 
-                        // KASUS B: Event pada BERKAS PDF
-                        if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
-                            let lower = name.to_lowercase();
-                            // Abaikan semua berkas temporary (_temp_audit_, _temp_split_, dll.)
-                            if lower.starts_with("_temp_") {
-                                continue;
-                            }
-                            // Proses semua file .pdf yang namanya BELUM termasuk dalam 10 nama standar
-                            let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
-                                lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
-                            });
+                        let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                        let lower = file_name.to_lowercase();
+                        if lower.starts_with("_temp_") {
+                            continue;
+                        }
 
-                            if lower.ends_with(".pdf") && !sudah_benar {
-                                let mut set = sedang_diproses_file_watcher.lock().unwrap();
-                                if !set.contains(&path) {
-                                    set.insert(path.clone());
-                                    let _ = tx_file.blocking_send(path);
-                                }
+                        let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
+                            lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
+                        });
+
+                        // Masukkan folder klien ke antrean jika ada berkas belum standar atau ada event folder
+                        if path.is_dir() || !sudah_benar {
+                            let mut set = sedang_diproses_folder_watcher.lock().unwrap();
+                            if !set.contains(&client_folder) {
+                                set.insert(client_folder.clone());
+                                let _ = tx_folder.blocking_send(client_folder);
                             }
                         }
                     }
@@ -837,13 +792,14 @@ async fn main() -> notify::Result<()> {
 
     watcher.watch(Path::new(ROOT_FOLDER), RecursiveMode::Recursive)?;
 
-    // Worker untuk menangani folder yang baru di-rename menjadi kapital
+    // Worker pemantau realtime folder: memproses Tahap 1 (split bundel) baru kemudian Tahap 2 (rename)
     let ocr_engine_folder_worker = ocr_engine.clone();
     let sedang_diproses_folder_cleanup = Arc::clone(&sedang_diproses_folder);
+
     tokio::spawn(async move {
         while let Some(folder_path) = rx_folder.recv().await {
-            // Beri jeda 800ms agar proses rename Windows Explorer / Google Drive selesai sempurna
-            tokio::time::sleep(Duration::from_millis(800)).await;
+            // Beri jeda 1200ms agar seluruh berkas dari scanner / copy-paste selesai ditulis sempurna
+            tokio::time::sleep(Duration::from_millis(1200)).await;
 
             if !folder_path.exists() || is_folder_dikecualikan(&folder_path) {
                 sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
@@ -855,23 +811,18 @@ async fn main() -> notify::Result<()> {
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_else(|| "Folder".to_string());
 
-            catat_log(&format!(
-                "\n[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: '{}'",
-                folder_name
-            ));
+            // Tunggu seluruh berkas selesai ditulis oleh mesin scanner
+            if !tunggu_semua_file_siap(&folder_path).await {
+                catat_log(&format!(" -> Dilewati: Berkas di folder '{}' masih dikunci aplikasi lain.", folder_name));
+                sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
+                continue;
+            }
 
             let ocr = ocr_engine_folder_worker.clone();
             let fp = folder_path.clone();
 
             tokio::task::spawn_blocking(move || {
-                let mut total_f = 0;
-                let mut total_d = 0;
-                audit_folder_rekursif(&fp, &ocr, &mut total_f, &mut total_d);
-                if total_d > 0 {
-                    catat_log(&format!("  -> Selesai! Sebanyak {} berkas di '{}' telah diperbaiki.", total_d, folder_name));
-                } else {
-                    catat_log(&format!("  -> Pemeriksaan selesai. Seluruh berkas di '{}' sudah tepat.", folder_name));
-                }
+                let _ = audit_dan_perbaiki_satu_folder(&fp, &ocr);
             })
             .await
             .unwrap_or(());
@@ -880,13 +831,9 @@ async fn main() -> notify::Result<()> {
         }
     });
 
-    catat_log("\n[Pemantau Realtime Aktif] Siap memproses berkas baru & memisahkan bundel PDF secara otomatis...");
+    catat_log("\n[Pemantau Realtime Aktif] Siap memproses folder: Tahap 1 (Pemisahan Bundel) -> Tahap 2 (Penamaan Berkas)...");
 
-    // Worker untuk menangani berkas PDF baru secara realtime
-    while let Some(path) = rx_file.recv().await {
-        proses_satu_berkas(&path, &ocr_engine).await;
-        sedang_diproses_file.lock().unwrap().remove(&path);
-    }
-
+    // Tetap standby di latar belakang
+    tokio::signal::ctrl_c().await.ok();
     Ok(())
 }

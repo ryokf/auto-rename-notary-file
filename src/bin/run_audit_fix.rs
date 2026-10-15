@@ -443,18 +443,26 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
 
     let mut diperbaiki = 0;
 
-    // Langkah 1: Pisahkan berkas bundel jika ada
-    for file_path in files_pdf {
+    // =========================================================================
+    // TAHAP 1: MEMERIKSA & MEMISAHKAN FILE GABUNGAN (BUNDEL) TERLEBIH DAHULU
+    // =========================================================================
+    println!("\n[Memproses Folder Klien: '{}']", folder_name);
+    println!("  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...");
+    let mut ada_bundel = false;
+
+    for file_path in &files_pdf {
         let file_name = file_path.file_name().unwrap().to_string_lossy().to_string();
         let lower = file_name.to_lowercase();
         let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
             lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
         });
 
+        // Hanya periksa berkas yang namanya belum standar
         if !sudah_benar {
-            match analisis_pdf(&file_path, engine) {
+            match analisis_pdf(file_path, engine) {
                 HasilAnalisisPdf::Bundel(groups) => {
-                    if pisahkan_bundel_pdf(&file_path, &groups) {
+                    ada_bundel = true;
+                    if pisahkan_bundel_pdf(file_path, &groups) {
                         diperbaiki += groups.len();
                     }
                 }
@@ -463,7 +471,14 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         }
     }
 
-    // Refresh daftar berkas di folder
+    if !ada_bundel {
+        println!("     (Tidak ada file gabungan yang perlu dipisahkan)");
+    }
+
+    // =========================================================================
+    // TAHAP 2: PENGECEKAN & PERBAIKAN NAMA BERKAS (AJB, SERTIPIKAT, DLL)
+    // =========================================================================
+    println!("  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...");
     let Ok(entries_after) = fs::read_dir(folder) else { return diperbaiki; };
     let mut files_to_audit = Vec::new();
     for entry in entries_after.flatten() {
@@ -487,7 +502,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
             }
             HasilAnalisisPdf::Bundel(_) => {}
             HasilAnalisisPdf::TidakDikenali => {
-                println!("  [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name);
+                println!("     [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name);
             }
         }
     }
@@ -495,6 +510,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     let mut jenis_counters: HashMap<&'static str, usize> = HashMap::new();
     let mut rencana_ubah: Vec<(PathBuf, String, PathBuf)> = Vec::new();
 
+    // Prioritaskan file yang namanya sudah Jenis.pdf agar tetap menjadi Jenis.pdf
     hasil_deteksi.sort_by(|a, b| {
         let a_is_exact = a.1.to_lowercase() == format!("{}.pdf", a.2.to_lowercase());
         let b_is_exact = b.1.to_lowercase() == format!("{}.pdf", b.2.to_lowercase());
@@ -519,10 +535,11 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     }
 
     if rencana_ubah.is_empty() {
+        println!("     Semua nama berkas sudah tepat.");
         return diperbaiki;
     }
 
-    println!("  [Audit Folder] '{}': Ditemukan {} berkas yang salah nama. Memperbaiki...", folder_name, rencana_ubah.len());
+    println!("     Ditemukan {} berkas yang salah nama. Memperbaiki...", rencana_ubah.len());
 
     let mut temp_items: Vec<(PathBuf, PathBuf)> = Vec::new();
     for (i, (current_path, current_name, final_target)) in rencana_ubah.into_iter().enumerate() {
