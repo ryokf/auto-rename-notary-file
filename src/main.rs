@@ -1,3 +1,4 @@
+use lopdf::Document;
 use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, OpenOptions};
@@ -7,7 +8,7 @@ use std::time::Duration;
 use tokio::sync::mpsc;
 use windows::{
     core::HSTRING,
-    Data::Pdf::{PdfDocument, PdfPageRenderOptions},
+    Data::Pdf::{PdfDocument, PdfPage, PdfPageRenderOptions},
     Graphics::Imaging::{
         BitmapDecoder, BitmapRotation, BitmapTransform, ColorManagementMode, ExifOrientationMode,
     },
@@ -42,12 +43,10 @@ fn is_folder_dikecualikan(path: &Path) -> bool {
 
     for comp in rel.components() {
         let name = comp.as_os_str().to_string_lossy();
-        // Lewati jika ini adalah nama berkas PDF
         if name.to_lowercase().ends_with(".pdf") {
             continue;
         }
 
-        // Jika nama folder memiliki huruf kecil (artinya tidak berhuruf kapital semua)
         if name.chars().any(|c| c.is_lowercase()) {
             return true;
         }
@@ -101,12 +100,14 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         return Some("Cek");
     }
 
-    // 4. PPH.pdf
+    // 4. PPH.pdf (Surat penelitian formal, bukti setor, billing DJP, dan bukti bayar/NTPN)
     if t.contains("PENELITIAN BUKTI PEMENUHAN")
         || t.contains("PAJAK PENGHASILAN")
         || t.contains("411128")
         || t.contains("PHTB-CT")
         || (t.contains("SURAT SETORAN PAJAK") && t.contains("PPH"))
+        || (t.contains("KODE BILLING") && (t.contains("PAJAK") || t.contains("NTPN") || t.contains("DJP")))
+        || (t.contains("NTPN") && (t.contains("PAJAK") || t.contains("SETORAN")))
     {
         return Some("PPH");
     }
@@ -134,7 +135,7 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         return Some("BPHTB");
     }
 
-    // 7. KK.pdf (Kartu Keluarga - dicek sebelum Sertifikat karena KK modern memuat catatan kaki 'sertifikat elektronik BSrE')
+    // 7. KK.pdf (Kartu Keluarga)
     if t.contains("KARTU KELUARGA")
         || (t.contains("KARTU") && (t.contains("KEI-UARGA") || t.contains("KEIUARGA") || t.contains("KE1UARGA") || t.contains("KEPALA")))
         || t.contains("NAMA KEPALA KELUARGA")
@@ -146,7 +147,7 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         return Some("KK");
     }
 
-    // 8. AJB.pdf (Akta Jual Beli otentik PPAT - bukan sertipikat tanah yang memuat kutipan akta jual beli)
+    // 8. AJB.pdf (Akta Jual Beli otentik PPAT)
     if !t.contains("KEMENTERIAN AGRARIA") && !t.contains("BADAN PERTANAHAN") && !t.contains("EDISI") {
         if t.contains("AKTA JUAL BELI")
             || t.contains("AKTA GUAL BELI")
@@ -156,7 +157,7 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         }
     }
 
-    // 9. Sertifikat.pdf (Sertipikat Hak Tanah BPN, baik buku fisik hijau maupun sertipikat elektronik putih)
+    // 9. Sertifikat.pdf (Sertipikat Hak Tanah BPN)
     let is_sertifikat = (t.contains("SERTIPIKAT") || t.contains("SERTIFIKAT") || t.contains("EDISI"))
         && (t.contains("KEMENTERIAN AGRARIA")
             || t.contains("BADAN PERTANAHAN")
@@ -183,7 +184,7 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         return Some("Sertifikat");
     }
 
-    // 10. KTP.pdf (KTP biasa, e-KTP, atau fotokopi KTP yang dilegalisir notaris)
+    // 10. KTP.pdf (KTP biasa, e-KTP, atau fotokopi KTP)
     let is_ktp = t.contains("KARTU TANDA PENDUDUK")
         || t.contains("SEUMUR")
         || t.contains("SEIJMUR")
@@ -200,7 +201,7 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
             || t.contains("PEKERJAAN"))
             && (t.contains("NIK") || t.contains("PROVINSI") || t.contains("KABUPATEN") || t.contains("INDONESIA") || t.contains("WNI") || t.contains("WNE") || t.contains("DEMAK") || t.contains("SEMARANG") || t.contains("REMBANG") || t.contains("PATI") || t.contains("HIBUP") || t.contains("KAWIN")))
         || ((t.contains("FOTO SESUAI") || t.contains("FOTO SE.SUA") || t.contains("FOTO COPY SESUAI") || t.contains("DIPERLIHATKAN") || t.contains("3374") || t.contains("3321") || t.contains("3318"))
-            && (t.contains("DEMAK") || t.contains("WAHYUNINGSIH") || t.contains("LAHIR") || t.contains("KABUPATEN") || t.contains("ASLI")));
+            && (t.contains("NIK") || t.contains("LAHIR") || t.contains("WARGA") || t.contains("AGAMA")));
 
     if is_ktp {
         return Some("KTP");
@@ -209,75 +210,162 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
     None
 }
 
-/// Merender halaman PDF dan menjalankan Windows Media OCR langsung di memori dengan berbagai rotasi (0°, 270°, 90°, 180°)
-fn deteksi_jenis_dokumen_pdf(path: &Path, engine: &OcrEngine) -> Option<&'static str> {
-    let path_str = path.to_str()?;
+/// Menjalankan OCR pada satu halaman PDF dengan rotasi multi-arah (0°, 270°, 90°, 180°)
+fn deteksi_halaman_pdf(page: &PdfPage, engine: &OcrEngine) -> Option<&'static str> {
+    let size = page.Size().ok()?;
+    let scale: f32 = if size.Width > 1000.0 || size.Height > 1000.0 { 1.5 } else { 2.2 };
+    let render_options = PdfPageRenderOptions::new().ok()?;
+    let _ = render_options.SetDestinationWidth((size.Width * scale) as u32);
+    let _ = render_options.SetDestinationHeight((size.Height * scale) as u32);
+
+    let stream = InMemoryRandomAccessStream::new().ok()?;
+    let render_op = page.RenderWithOptionsToStreamAsync(&stream, &render_options).ok()?;
+    render_op.get().ok()?;
+
+    let decoder = BitmapDecoder::CreateAsync(&stream).ok()?.get().ok()?;
+
+    let mut all_text = String::new();
+    for rotation in [
+        BitmapRotation::None,
+        BitmapRotation::Clockwise270Degrees,
+        BitmapRotation::Clockwise90Degrees,
+        BitmapRotation::Clockwise180Degrees,
+    ] {
+        let transform = BitmapTransform::new().ok()?;
+        let _ = transform.SetRotation(rotation);
+
+        let pixel_format = decoder.BitmapPixelFormat().ok()?;
+        let alpha_mode = decoder.BitmapAlphaMode().ok()?;
+
+        let software_bitmap = decoder.GetSoftwareBitmapTransformedAsync(
+            pixel_format,
+            alpha_mode,
+            &transform,
+            ExifOrientationMode::IgnoreExifOrientation,
+            ColorManagementMode::DoNotColorManage,
+        ).ok()?.get().ok()?;
+
+        let ocr_result = engine.RecognizeAsync(&software_bitmap).ok()?.get().ok()?;
+        let text = ocr_result.Text().ok()?.to_string();
+        all_text.push_str(" ");
+        all_text.push_str(&text);
+
+        if let Some(kategori) = tentukan_jenis_dokumen(&text) {
+            return Some(kategori);
+        }
+    }
+
+    tentukan_jenis_dokumen(&all_text)
+}
+
+/// Mengekstrak sejumlah halaman tertentu dari PDF asal ke PDF tujuan baru secara lossless
+fn extract_pages(source_pdf: &Path, target_pdf: &Path, pages_to_keep: &[u32]) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let mut doc = Document::load(source_pdf)?;
+    let all_pages: Vec<u32> = doc.get_pages().keys().cloned().collect();
+    let keep_set: HashSet<u32> = pages_to_keep.iter().cloned().collect();
+    let to_delete: Vec<u32> = all_pages.into_iter().filter(|p| !keep_set.contains(p)).collect();
+
+    doc.delete_pages(&to_delete);
+    doc.prune_objects();
+    doc.save(target_pdf)?;
+    Ok(())
+}
+
+/// Hasil analisis isi berkas PDF
+#[derive(Debug)]
+enum HasilAnalisisPdf {
+    TidakDikenali,
+    Tunggal(&'static str),
+    Bundel(Vec<(&'static str, Vec<u32>)>), // Dokumen dan daftar halaman 1-based
+}
+
+/// Menganalisis berkas PDF: apakah berkas tunggal (1 jenis dokumen) atau bundel (memuat berbagai jenis dokumen)
+fn analisis_pdf(path: &Path, engine: &OcrEngine) -> HasilAnalisisPdf {
+    let Some(path_str) = path.to_str() else { return HasilAnalisisPdf::TidakDikenali; };
     let h_path = HSTRING::from(path_str);
-    let file = StorageFile::GetFileFromPathAsync(&h_path).ok()?.get().ok()?;
-    let pdf_doc = PdfDocument::LoadFromFileAsync(&file).ok()?.get().ok()?;
+    let Ok(file_op) = StorageFile::GetFileFromPathAsync(&h_path) else { return HasilAnalisisPdf::TidakDikenali; };
+    let Ok(file) = file_op.get() else { return HasilAnalisisPdf::TidakDikenali; };
+    let Ok(pdf_doc_op) = PdfDocument::LoadFromFileAsync(&file) else { return HasilAnalisisPdf::TidakDikenali; };
+    let Ok(pdf_doc) = pdf_doc_op.get() else { return HasilAnalisisPdf::TidakDikenali; };
 
     let total_pages = pdf_doc.PageCount().unwrap_or(0);
     if total_pages == 0 {
-        return None;
+        return HasilAnalisisPdf::TidakDikenali;
     }
 
-    // Cek halaman pertama (indeks 0). Jika belum terdeteksi dan ada halaman berikutnya, cek halaman kedua (indeks 1)
-    let max_check = total_pages.min(2);
-
-    for p_idx in 0..max_check {
-        let Ok(page) = pdf_doc.GetPage(p_idx) else { continue };
-        let Ok(size) = page.Size() else { continue };
-
-        // Skala adaptif untuk ketajaman optimal OCR tanpa melewati batas ukuran internal Windows OCR
-        let scale: f32 = if size.Width > 1000.0 || size.Height > 1000.0 { 1.5 } else { 2.2 };
-        let Ok(render_options) = PdfPageRenderOptions::new() else { continue };
-        let _ = render_options.SetDestinationWidth((size.Width * scale) as u32);
-        let _ = render_options.SetDestinationHeight((size.Height * scale) as u32);
-
-        let Ok(stream) = InMemoryRandomAccessStream::new() else { continue };
-        let Ok(render_op) = page.RenderWithOptionsToStreamAsync(&stream, &render_options) else { continue };
-        if render_op.get().is_err() {
-            continue;
+    // Jika hanya 1 halaman
+    if total_pages == 1 {
+        if let Ok(page) = pdf_doc.GetPage(0) {
+            if let Some(kat) = deteksi_halaman_pdf(&page, engine) {
+                return HasilAnalisisPdf::Tunggal(kat);
+            }
         }
+        return HasilAnalisisPdf::TidakDikenali;
+    }
 
-        let Ok(decoder_op) = BitmapDecoder::CreateAsync(&stream) else { continue };
-        let Ok(decoder) = decoder_op.get() else { continue };
+    // Jika halaman pertama adalah AJB: AJB adalah satu akta utuh yang tidak dipisah-pisah
+    if let Ok(page0) = pdf_doc.GetPage(0) {
+        if let Some("AJB") = deteksi_halaman_pdf(&page0, engine) {
+            return HasilAnalisisPdf::Tunggal("AJB");
+        }
+    }
 
-        // Prioritas rotasi: 0° normal, 270° (landscape khas scanner), 90°, 180°
-        for rotation in [
-            BitmapRotation::None,
-            BitmapRotation::Clockwise270Degrees,
-            BitmapRotation::Clockwise90Degrees,
-            BitmapRotation::Clockwise180Degrees,
-        ] {
-            let Ok(transform) = BitmapTransform::new() else { continue };
-            let _ = transform.SetRotation(rotation);
+    // Periksa setiap halaman
+    let mut page_results: Vec<(u32, Option<&'static str>)> = Vec::new();
+    let mut distinct_categories: HashSet<&'static str> = HashSet::new();
 
-            let Ok(pixel_format) = decoder.BitmapPixelFormat() else { continue };
-            let Ok(alpha_mode) = decoder.BitmapAlphaMode() else { continue };
+    for p_idx in 0..total_pages {
+        let page_num = p_idx + 1;
+        let kat_opt = if let Ok(page) = pdf_doc.GetPage(p_idx) {
+            deteksi_halaman_pdf(&page, engine)
+        } else {
+            None
+        };
 
-            let Ok(transform_op) = decoder.GetSoftwareBitmapTransformedAsync(
-                pixel_format,
-                alpha_mode,
-                &transform,
-                ExifOrientationMode::IgnoreExifOrientation,
-                ColorManagementMode::DoNotColorManage,
-            ) else { continue };
+        if let Some(k) = kat_opt {
+            distinct_categories.insert(k);
+        }
+        page_results.push((page_num, kat_opt));
+    }
 
-            let Ok(software_bitmap) = transform_op.get() else { continue };
+    if distinct_categories.is_empty() {
+        return HasilAnalisisPdf::TidakDikenali;
+    }
 
-            let Ok(ocr_op) = engine.RecognizeAsync(&software_bitmap) else { continue };
-            let Ok(ocr_result) = ocr_op.get() else { continue };
-            let Ok(text) = ocr_result.Text() else { continue };
+    // Jika hanya ada 1 jenis dokumen di seluruh halaman (misal: Sertifikat 2 halaman atau PBB 2 halaman)
+    if distinct_categories.len() == 1 {
+        let jenis = distinct_categories.into_iter().next().unwrap();
+        return HasilAnalisisPdf::Tunggal(jenis);
+    }
 
-            let text_str = text.to_string();
-            if let Some(kategori) = tentukan_jenis_dokumen(&text_str) {
-                return Some(kategori);
+    // Jika memuat lebih dari 1 jenis dokumen -> BUNDEL MULTI-DOKUMEN
+    let mut groups: Vec<(&'static str, Vec<u32>)> = Vec::new();
+    for (page_num, kat_opt) in page_results {
+        if let Some(kat) = kat_opt {
+            if let Some(last_group) = groups.last_mut() {
+                if last_group.0 == kat {
+                    last_group.1.push(page_num);
+                    continue;
+                }
+            }
+            groups.push((kat, vec![page_num]));
+        } else {
+            // Halaman tidak memiliki kata kunci baru (lampiran/bukti transaksi/lembar lanjutan)
+            // Gabungkan ke dokumen sebelumnya yang sedang aktif
+            if let Some(last_group) = groups.last_mut() {
+                last_group.1.push(page_num);
             }
         }
     }
 
-    None
+    if groups.len() <= 1 {
+        if let Some((jenis, _)) = groups.first() {
+            return HasilAnalisisPdf::Tunggal(jenis);
+        }
+        return HasilAnalisisPdf::TidakDikenali;
+    }
+
+    HasilAnalisisPdf::Bundel(groups)
 }
 
 /// Mencatat log ke konsol dan ke file auto_rename.log
@@ -287,6 +375,66 @@ fn catat_log(pesan: &str) {
     if let Ok(mut f) = OpenOptions::new().create(true).append(true).open(log_path) {
         use std::io::Write;
         let _ = writeln!(f, "{}", pesan);
+    }
+}
+
+/// Memisahkan berkas bundel menjadi berkas individual di folder yang sama
+fn pisahkan_bundel_pdf(path: &Path, groups: &[(&'static str, Vec<u32>)]) -> bool {
+    let Some(parent_dir) = path.parent() else { return false; };
+    let file_name = path.file_name().unwrap_or_default().to_string_lossy();
+
+    catat_log(&format!(
+        " -> [BERKAS BUNDEL TERDETEKSI] Berkas '{}' memuat {} dokumen berbeda. Memulai pemisahan berkas...",
+        file_name, groups.len()
+    ));
+
+    let mut semua_sukses = true;
+    let mut target_tercipta: Vec<PathBuf> = Vec::new();
+
+    for (jenis, pages) in groups {
+        let mut target_name = format!("{}.pdf", jenis);
+        let mut target_path = parent_dir.join(&target_name);
+        let mut counter = 2;
+        while (target_path.exists() && target_path != path) || target_tercipta.contains(&target_path) {
+            target_name = format!("{}_{}.pdf", jenis, counter);
+            target_path = parent_dir.join(&target_name);
+            counter += 1;
+        }
+
+        let temp_name = format!("_temp_split_{}_{}_{}.pdf", jenis, std::process::id(), pages[0]);
+        let temp_path = parent_dir.join(&temp_name);
+
+        if let Err(e) = extract_pages(path, &temp_path, pages) {
+            catat_log(&format!("    [Gagal Ekstrak] Dokumen {} halaman {:?}: {}", jenis, pages, e));
+            semua_sukses = false;
+            let _ = fs::remove_file(&temp_path);
+            break;
+        }
+
+        if let Err(e) = fs::rename(&temp_path, &target_path) {
+            catat_log(&format!("    [Gagal Simpan] {} -> {}: {}", temp_name, target_name, e));
+            let _ = fs::remove_file(&temp_path);
+            semua_sukses = false;
+            break;
+        }
+
+        catat_log(&format!(
+            "    * Berhasil dipisahkan: '{}' (halaman {:?}) -> {:?}",
+            jenis, pages, target_path.file_name().unwrap()
+        ));
+        target_tercipta.push(target_path);
+    }
+
+    if semua_sukses {
+        if let Err(e) = fs::remove_file(path) {
+            catat_log(&format!("    [Peringatan] Gagal menghapus berkas bundel asal '{}': {}", file_name, e));
+        } else {
+            catat_log(&format!(" -> SUKSES! Seluruh {} dokumen berhasil dipisahkan dan berkas bundel '{}' telah dibersihkan.", groups.len(), file_name));
+        }
+        true
+    } else {
+        catat_log(" -> Pemisahan berkas bundel belum lengkap. Berkas asal tetap dipertahankan.");
+        false
     }
 }
 
@@ -322,33 +470,46 @@ async fn proses_satu_berkas(path: &Path, engine: &OcrEngine) {
     let path_clone = path.to_path_buf();
     let engine_clone = engine.clone();
 
-    // Jalankan OCR di thread pool blocking
-    let hasil_kategori = tokio::task::spawn_blocking(move || {
-        deteksi_jenis_dokumen_pdf(&path_clone, &engine_clone)
+    // Jalankan OCR dan analisis di thread pool blocking
+    let hasil = tokio::task::spawn_blocking(move || {
+        analisis_pdf(&path_clone, &engine_clone)
     })
     .await
-    .unwrap_or(None);
+    .unwrap_or(HasilAnalisisPdf::TidakDikenali);
 
-    if let Some(nama_baru) = hasil_kategori {
-        let mut target_path = parent_dir.join(format!("{}.pdf", nama_baru));
-        let mut counter = 2;
-
-        // Jika di dalam folder yang sama ada lebih dari 1 file sejenis (misal 2 KTP), berikutnya dinamai KTP_2.pdf
-        while target_path.exists() && target_path != path {
-            target_path = parent_dir.join(format!("{}_{}.pdf", nama_baru, counter));
-            counter += 1;
+    match hasil {
+        HasilAnalisisPdf::TidakDikenali => {
+            catat_log(&format!(" -> Kata kunci tidak dikenali, nama file dibiarkan tetap: {}", file_name));
         }
+        HasilAnalisisPdf::Tunggal(nama_baru) => {
+            let mut target_path = parent_dir.join(format!("{}.pdf", nama_baru));
+            let mut counter = 2;
 
-        match fs::rename(path, &target_path) {
-            Ok(_) => catat_log(&format!(" -> SUKSES diubah menjadi: {:?}", target_path.file_name().unwrap())),
-            Err(e) => catat_log(&format!(" -> Gagal mengubah nama file: {}", e)),
+            // Jika di dalam folder yang sama ada lebih dari 1 file sejenis (misal 2 KTP), berikutnya dinamai KTP_2.pdf
+            while target_path.exists() && target_path != path {
+                target_path = parent_dir.join(format!("{}_{}.pdf", nama_baru, counter));
+                counter += 1;
+            }
+
+            if target_path != path {
+                match fs::rename(path, &target_path) {
+                    Ok(_) => catat_log(&format!(" -> SUKSES diubah menjadi: {:?}", target_path.file_name().unwrap())),
+                    Err(e) => catat_log(&format!(" -> Gagal mengubah nama file: {}", e)),
+                }
+            }
         }
-    } else {
-        catat_log(&format!(" -> Kata kunci tidak dikenali, nama file dibiarkan tetap: {}", file_name));
+        HasilAnalisisPdf::Bundel(groups) => {
+            let path_clone = path.to_path_buf();
+            tokio::task::spawn_blocking(move || {
+                pisahkan_bundel_pdf(&path_clone, &groups);
+            })
+            .await
+            .unwrap_or(());
+        }
     }
 }
 
-/// Mengaudit dan memperbaiki nama file dalam satu folder secara aman dengan teknik 2-fase rename
+/// Mengaudit dan memperbaiki nama file dalam satu folder secara aman dengan pemisahan bundel & teknik 2-fase rename
 fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     let folder_name = folder.file_name().unwrap_or_default().to_string_lossy();
     let Ok(entries) = fs::read_dir(folder) else { return 0; };
@@ -360,7 +521,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
             && path.extension().and_then(|e| e.to_str()).map(|e| e.to_lowercase()) == Some("pdf".to_string())
         {
             let name = path.file_name().unwrap().to_string_lossy();
-            if !name.starts_with("_temp_audit_") {
+            if !name.starts_with("_temp_") {
                 files_pdf.push(path);
             }
         }
@@ -370,13 +531,56 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         return 0;
     }
 
-    let mut hasil_deteksi: Vec<(PathBuf, String, &'static str)> = Vec::new();
-    for file_path in &files_pdf {
+    let mut diperbaiki = 0;
+
+    // Langkah 1: Deteksi dan pisahkan berkas bundel jika ada
+    for file_path in files_pdf {
         let file_name = file_path.file_name().unwrap().to_string_lossy().to_string();
-        if let Some(jenis) = deteksi_jenis_dokumen_pdf(file_path, engine) {
-            hasil_deteksi.push((file_path.clone(), file_name, jenis));
-        } else {
-            catat_log(&format!("  [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name));
+        let lower = file_name.to_lowercase();
+        let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
+            lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
+        });
+
+        // Jika nama file belum standar, periksa apakah bundel
+        if !sudah_benar {
+            match analisis_pdf(&file_path, engine) {
+                HasilAnalisisPdf::Bundel(groups) => {
+                    if pisahkan_bundel_pdf(&file_path, &groups) {
+                        diperbaiki += groups.len();
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // Refresh daftar berkas di folder setelah pemisahan bundel
+    let Ok(entries_after) = fs::read_dir(folder) else { return diperbaiki; };
+    let mut files_to_audit = Vec::new();
+    for entry in entries_after.flatten() {
+        let p = entry.path();
+        if p.is_file()
+            && p.extension().and_then(|e| e.to_str()).map(|e| e.to_lowercase()) == Some("pdf".to_string())
+        {
+            let name = p.file_name().unwrap().to_string_lossy();
+            if !name.starts_with("_temp_") {
+                files_to_audit.push(p);
+            }
+        }
+    }
+
+    // Langkah 2: Audit berkas tunggal yang belum tepat namanya
+    let mut hasil_deteksi: Vec<(PathBuf, String, &'static str)> = Vec::new();
+    for file_path in &files_to_audit {
+        let file_name = file_path.file_name().unwrap().to_string_lossy().to_string();
+        match analisis_pdf(file_path, engine) {
+            HasilAnalisisPdf::Tunggal(jenis) => {
+                hasil_deteksi.push((file_path.clone(), file_name, jenis));
+            }
+            HasilAnalisisPdf::Bundel(_) => {}
+            HasilAnalisisPdf::TidakDikenali => {
+                catat_log(&format!("  [{}] Berkas '{}': Kata kunci tidak dikenali (dibiarkan)", folder_name, file_name));
+            }
         }
     }
 
@@ -408,7 +612,7 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     }
 
     if rencana_ubah.is_empty() {
-        return 0;
+        return diperbaiki;
     }
 
     catat_log(&format!("  [Audit Folder] '{}': Ditemukan {} berkas yang salah nama. Memperbaiki...", folder_name, rencana_ubah.len()));
@@ -426,7 +630,6 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
     }
 
     // Fase 2: Pindahkan dari nama sementara ke nama target final
-    let mut sukses = 0;
     for (temp_path, mut final_target) in temp_items {
         let mut target_name = final_target.file_name().unwrap().to_string_lossy().to_string();
         let stem = final_target.file_stem().unwrap().to_string_lossy().to_string();
@@ -441,13 +644,13 @@ fn audit_dan_perbaiki_satu_folder(folder: &Path, engine: &OcrEngine) -> usize {
         match fs::rename(&temp_path, &final_target) {
             Ok(_) => {
                 catat_log(&format!("    * Berhasil diubah -> {}", target_name));
-                sukses += 1;
+                diperbaiki += 1;
             }
             Err(e) => catat_log(&format!("    * Gagal mengubah ke {}: {}", target_name, e)),
         }
     }
 
-    sukses
+    diperbaiki
 }
 
 /// Menjelajahi folder klien aktif secara rekursif dan menjalankan audit berkas
@@ -489,6 +692,7 @@ fn audit_semua_folder_aktif(engine: &OcrEngine) {
     catat_log("------------------------------------------------------");
     catat_log("[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...");
     catat_log("Tiap berkas diperiksa ulang isinya menggunakan OCR.");
+    catat_log("Jika ada berkas bundel multi-dokumen, akan dipisahkan otomatis.");
     catat_log("Jika ada nama file yang masih salah, akan diperbaiki otomatis.");
     catat_log("------------------------------------------------------");
 
@@ -500,7 +704,7 @@ fn audit_semua_folder_aktif(engine: &OcrEngine) {
 
     catat_log("------------------------------------------------------");
     catat_log(&format!(
-        "[AUDIT SELESAI] Total {} folder klien diperiksa. Total {} berkas diperbaiki.",
+        "[AUDIT SELESAI] Total {} folder klien diperiksa. Total {} tindakan perbaikan.",
         total_folder, total_diperbaiki
     ));
     catat_log("Seluruh folder klien aktif sudah terverifikasi dan rapi.");
@@ -512,6 +716,7 @@ async fn main() -> notify::Result<()> {
     catat_log("======================================================");
     catat_log(" AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) ");
     catat_log(&format!(" Memantau Folder : {}", ROOT_FOLDER));
+    catat_log(" Fitur           : Pemisahan Bundel Multi-Dokumen & Auto-Rename");
     catat_log(" Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)");
     catat_log("======================================================");
 
@@ -581,8 +786,8 @@ async fn main() -> notify::Result<()> {
                         // KASUS B: Event pada BERKAS PDF
                         if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
                             let lower = name.to_lowercase();
-                            // Abaikan berkas temporary audit
-                            if lower.starts_with("_temp_audit_") {
+                            // Abaikan semua berkas temporary (_temp_audit_, _temp_split_, dll.)
+                            if lower.starts_with("_temp_") {
                                 continue;
                             }
                             // Proses semua file .pdf yang namanya BELUM termasuk dalam 10 nama standar
@@ -650,7 +855,7 @@ async fn main() -> notify::Result<()> {
         }
     });
 
-    catat_log("\n[Pemantau Realtime Aktif] Siap memproses berkas baru & folder yang di-rename secara otomatis...");
+    catat_log("\n[Pemantau Realtime Aktif] Siap memproses berkas baru & memisahkan bundel PDF secara otomatis...");
 
     // Worker untuk menangani berkas PDF baru secara realtime
     while let Some(path) = rx_file.recv().await {

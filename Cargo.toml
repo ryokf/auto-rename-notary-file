@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lopdf = "0.45.0"
 notify = "6.1"
 tokio = { version = "1", features = ["full"] }
 
@@ -17,3 +18,5 @@ features = [
     "Media_Ocr",
     "Data_Pdf",
 ]
+
+
