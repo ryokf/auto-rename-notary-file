@@ -546,10 +546,15 @@ async fn main() -> notify::Result<()> {
     .await
     .unwrap_or(());
 
-    // 2. Siapkan pemantau realtime untuk menangkap berkas baru yang masuk
-    let (tx, mut rx) = mpsc::channel::<PathBuf>(1000);
-    let sedang_diproses: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
-    let sedang_diproses_watcher = Arc::clone(&sedang_diproses);
+    // 2. Siapkan antrean terpisah untuk berkas baru dan folder yang baru di-rename menjadi kapital
+    let (tx_file, mut rx_file) = mpsc::channel::<PathBuf>(1000);
+    let (tx_folder, mut rx_folder) = mpsc::channel::<PathBuf>(100);
+
+    let sedang_diproses_file: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
+    let sedang_diproses_file_watcher = Arc::clone(&sedang_diproses_file);
+
+    let sedang_diproses_folder: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
+    let sedang_diproses_folder_watcher = Arc::clone(&sedang_diproses_folder);
 
     let mut watcher = RecommendedWatcher::new(
         move |res: Result<Event, notify::Error>| {
@@ -559,6 +564,21 @@ async fn main() -> notify::Result<()> {
                         if is_folder_dikecualikan(&path) {
                             continue;
                         }
+
+                        // KASUS A: Event pada FOLDER (misal: folder baru dibuat atau DI-RENAME menjadi huruf kapital)
+                        let is_dir = path.is_dir()
+                            || (!path.to_string_lossy().to_lowercase().ends_with(".pdf") && path.exists());
+
+                        if is_dir && path != Path::new(ROOT_FOLDER) {
+                            let mut set = sedang_diproses_folder_watcher.lock().unwrap();
+                            if !set.contains(&path) {
+                                set.insert(path.clone());
+                                let _ = tx_folder.blocking_send(path.clone());
+                            }
+                            continue;
+                        }
+
+                        // KASUS B: Event pada BERKAS PDF
                         if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
                             let lower = name.to_lowercase();
                             // Abaikan berkas temporary audit
@@ -571,10 +591,10 @@ async fn main() -> notify::Result<()> {
                             });
 
                             if lower.ends_with(".pdf") && !sudah_benar {
-                                let mut set = sedang_diproses_watcher.lock().unwrap();
+                                let mut set = sedang_diproses_file_watcher.lock().unwrap();
                                 if !set.contains(&path) {
                                     set.insert(path.clone());
-                                    let _ = tx.blocking_send(path);
+                                    let _ = tx_file.blocking_send(path);
                                 }
                             }
                         }
@@ -587,11 +607,55 @@ async fn main() -> notify::Result<()> {
 
     watcher.watch(Path::new(ROOT_FOLDER), RecursiveMode::Recursive)?;
 
-    catat_log("\n[Pemantau Realtime Aktif] Siap memproses berkas baru secara otomatis...");
+    // Worker untuk menangani folder yang baru di-rename menjadi kapital
+    let ocr_engine_folder_worker = ocr_engine.clone();
+    let sedang_diproses_folder_cleanup = Arc::clone(&sedang_diproses_folder);
+    tokio::spawn(async move {
+        while let Some(folder_path) = rx_folder.recv().await {
+            // Beri jeda 800ms agar proses rename Windows Explorer / Google Drive selesai sempurna
+            tokio::time::sleep(Duration::from_millis(800)).await;
 
-    while let Some(path) = rx.recv().await {
+            if !folder_path.exists() || is_folder_dikecualikan(&folder_path) {
+                sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
+                continue;
+            }
+
+            let folder_name = folder_path
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_else(|| "Folder".to_string());
+
+            catat_log(&format!(
+                "\n[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: '{}'",
+                folder_name
+            ));
+
+            let ocr = ocr_engine_folder_worker.clone();
+            let fp = folder_path.clone();
+
+            tokio::task::spawn_blocking(move || {
+                let mut total_f = 0;
+                let mut total_d = 0;
+                audit_folder_rekursif(&fp, &ocr, &mut total_f, &mut total_d);
+                if total_d > 0 {
+                    catat_log(&format!("  -> Selesai! Sebanyak {} berkas di '{}' telah diperbaiki.", total_d, folder_name));
+                } else {
+                    catat_log(&format!("  -> Pemeriksaan selesai. Seluruh berkas di '{}' sudah tepat.", folder_name));
+                }
+            })
+            .await
+            .unwrap_or(());
+
+            sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
+        }
+    });
+
+    catat_log("\n[Pemantau Realtime Aktif] Siap memproses berkas baru & folder yang di-rename secara otomatis...");
+
+    // Worker untuk menangani berkas PDF baru secara realtime
+    while let Some(path) = rx_file.recv().await {
         proses_satu_berkas(&path, &ocr_engine).await;
-        sedang_diproses.lock().unwrap().remove(&path);
+        sedang_diproses_file.lock().unwrap().remove(&path);
     }
 
     Ok(())

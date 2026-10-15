@@ -592,3 +592,68 @@ Seluruh folder klien aktif sudah terverifikasi dan rapi.
 ------------------------------------------------------
 
 [Pemantau Realtime Aktif] Siap memproses berkas baru secara otomatis...
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Jika ada nama file yang masih salah, akan diperbaiki otomatis.
+------------------------------------------------------
+------------------------------------------------------
+[AUDIT SELESAI] Total 20 folder klien diperiksa. Total 0 berkas diperbaiki.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses berkas baru & folder yang di-rename secara otomatis...
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'ISTIKOMAH'
+  [Audit Folder] 'ISTIKOMAH': Ditemukan 2 berkas yang salah nama. Memperbaiki...
+    * Berhasil diubah -> Sertifikat.pdf
+    * Berhasil diubah -> KTP.pdf
+  -> Selesai! Sebanyak 2 berkas di 'ISTIKOMAH' telah diperbaiki.
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'ISTIKOMAH'
+  -> Pemeriksaan selesai. Seluruh berkas di 'ISTIKOMAH' sudah tepat.
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'IRVAN FIRMANSYAH'
+  [Audit Folder] 'IRVAN FIRMANSYAH': Ditemukan 11 berkas yang salah nama. Memperbaiki...
+    * Berhasil diubah -> KTP.pdf
+    * Berhasil diubah -> PPH.pdf
+    * Berhasil diubah -> PBB.pdf
+    * Berhasil diubah -> KK.pdf
+    * Berhasil diubah -> Keabsahan.pdf
+    * Berhasil diubah -> BPHTB.pdf
+    * Berhasil diubah -> Cek.pdf
+    * Berhasil diubah -> AJB.pdf
+    * Berhasil diubah -> Sertifikat.pdf
+    * Berhasil diubah -> Permohonan.pdf
+    * Berhasil diubah -> Sertifikat_2.pdf
+  -> Selesai! Sebanyak 11 berkas di 'IRVAN FIRMANSYAH' telah diperbaiki.
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'IRVAN FIRMANSYAH'
+  -> Pemeriksaan selesai. Seluruh berkas di 'IRVAN FIRMANSYAH' sudah tepat.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Jika ada nama file yang masih salah, akan diperbaiki otomatis.
+------------------------------------------------------
+------------------------------------------------------
+[AUDIT SELESAI] Total 21 folder klien diperiksa. Total 0 berkas diperbaiki.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses berkas baru & folder yang di-rename secara otomatis...
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'EVA KRISTIYANTO'
+  -> Pemeriksaan selesai. Seluruh berkas di 'EVA KRISTIYANTO' sudah tepat.
