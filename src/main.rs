@@ -180,7 +180,11 @@ fn tentukan_jenis_dokumen(teks_mentah: &str) -> Option<&'static str> {
         || (t.contains("BUKU TANAH") && (t.contains("HAK MILIK") || t.contains("HAK GUNA BANGUNAN")))
         || (t.contains("DAFTAR ISIAN 206") || t.contains("DAFTAR ISIAN 208"));
 
-    if is_sertifikat && !t.contains("KARTU TANDA PENDUDUK") {
+    if is_sertifikat
+        && !t.contains("KARTU TANDA PENDUDUK")
+        && !t.contains("PENGECEKAN SERTIPIKAT")
+        && !t.contains("HASIL PENGECEKAN")
+    {
         return Some("Sertifikat");
     }
 
@@ -303,10 +307,31 @@ fn analisis_pdf(path: &Path, engine: &OcrEngine) -> HasilAnalisisPdf {
         return HasilAnalisisPdf::TidakDikenali;
     }
 
-    // Jika halaman pertama adalah AJB: AJB adalah satu akta utuh yang tidak dipisah-pisah
+    // Prioritas Khusus 1: AJB adalah satu akta otentik PPAT utuh yang tidak boleh dipisah-pisah
     if let Ok(page0) = pdf_doc.GetPage(0) {
         if let Some("AJB") = deteksi_halaman_pdf(&page0, engine) {
             return HasilAnalisisPdf::Tunggal("AJB");
+        }
+    }
+    if total_pages > 1 {
+        if let Ok(page1) = pdf_doc.GetPage(1) {
+            if let Some("AJB") = deteksi_halaman_pdf(&page1, engine) {
+                return HasilAnalisisPdf::Tunggal("AJB");
+            }
+        }
+    }
+
+    // Prioritas Khusus 2: Sertifikat adalah buku/sertipikat hak tanah BPN utuh yang tidak boleh dipisah-pisah
+    if let Ok(page0) = pdf_doc.GetPage(0) {
+        if let Some("Sertifikat") = deteksi_halaman_pdf(&page0, engine) {
+            return HasilAnalisisPdf::Tunggal("Sertifikat");
+        }
+    }
+    if total_pages > 1 {
+        if let Ok(page1) = pdf_doc.GetPage(1) {
+            if let Some("Sertifikat") = deteksi_halaman_pdf(&page1, engine) {
+                return HasilAnalisisPdf::Tunggal("Sertifikat");
+            }
         }
     }
 
