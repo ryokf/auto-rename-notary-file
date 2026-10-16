@@ -1,4 +1,5 @@
 use lopdf::Document;
+use notify::event::ModifyKind;
 use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::{HashMap, HashSet};
 use std::fs::{self, OpenOptions};
@@ -674,35 +675,12 @@ fn audit_folder_rekursif(
     }
 }
 
-/// Menjalankan audit menyeluruh ke seluruh folder klien aktif secara rekursif saat program baru dinyalakan
-fn audit_semua_folder_aktif(engine: &OcrEngine) {
-    catat_log("------------------------------------------------------");
-    catat_log("[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...");
-    catat_log("Tiap berkas diperiksa ulang isinya menggunakan OCR.");
-    catat_log("Tahap 1: Memisahkan file gabungan (bundel).");
-    catat_log("Tahap 2: Menyesuaikan nama berkas tunggal (AJB, Sertipikat, dll).");
-    catat_log("------------------------------------------------------");
-
-    let root = Path::new(ROOT_FOLDER);
-    let mut total_folder = 0;
-    let mut total_diperbaiki = 0;
-
-    audit_folder_rekursif(root, engine, &mut total_folder, &mut total_diperbaiki);
-
-    catat_log("------------------------------------------------------");
-    catat_log(&format!(
-        "[AUDIT SELESAI] Total {} folder klien diperiksa. Total {} tindakan perbaikan.",
-        total_folder, total_diperbaiki
-    ));
-    catat_log("Seluruh folder klien aktif sudah terverifikasi dan rapi.");
-    catat_log("------------------------------------------------------");
-}
-
 #[tokio::main]
 async fn main() -> notify::Result<()> {
     catat_log("======================================================");
     catat_log(" AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) ");
     catat_log(&format!(" Memantau Folder : {}", ROOT_FOLDER));
+    catat_log(" Mode Pantau     : Khusus Folder Baru & Folder yang Direname");
     catat_log(" Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename");
     catat_log(" Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)");
     catat_log("======================================================");
@@ -730,15 +708,7 @@ async fn main() -> notify::Result<()> {
         }
     };
 
-    // 1. Jalankan audit menyeluruh saat startup untuk mengecek dan memperbaiki semua folder aktif
-    let ocr_engine_audit = ocr_engine.clone();
-    tokio::task::spawn_blocking(move || {
-        audit_semua_folder_aktif(&ocr_engine_audit);
-    })
-    .await
-    .unwrap_or(());
-
-    // 2. Siapkan pemantau realtime folder-based dengan urutan 2-tahap
+    // Siapkan pemantau realtime khusus folder baru dan folder yang baru saja direname
     let (tx_folder, mut rx_folder) = mpsc::channel::<PathBuf>(100);
     let sedang_diproses_folder: Arc<Mutex<HashSet<PathBuf>>> = Arc::new(Mutex::new(HashSet::new()));
     let sedang_diproses_folder_watcher = Arc::clone(&sedang_diproses_folder);
@@ -746,42 +716,22 @@ async fn main() -> notify::Result<()> {
     let mut watcher = RecommendedWatcher::new(
         move |res: Result<Event, notify::Error>| {
             if let Ok(event) = res {
-                if matches!(event.kind, EventKind::Create(_) | EventKind::Modify(_)) {
+                // Hanya menangkap event Folder Baru (Create) atau Folder Direname (Modify Name)
+                if matches!(event.kind, EventKind::Create(_) | EventKind::Modify(ModifyKind::Name(_))) {
                     for path in event.paths {
-                        if is_folder_dikecualikan(&path) {
+                        // Pastikan target adalah direktori yang masih ada (bukan file dan bukan path lama sebelum direname)
+                        if !path.exists() || !path.is_dir() {
                             continue;
                         }
 
-                        let client_folder = if path.is_dir() {
-                            path.clone()
-                        } else {
-                            match path.parent() {
-                                Some(p) => p.to_path_buf(),
-                                None => continue,
-                            }
-                        };
-
-                        if client_folder == Path::new(ROOT_FOLDER) || is_folder_dikecualikan(&client_folder) {
+                        if path == Path::new(ROOT_FOLDER) || is_folder_dikecualikan(&path) {
                             continue;
                         }
 
-                        let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                        let lower = file_name.to_lowercase();
-                        if lower.starts_with("_temp_") {
-                            continue;
-                        }
-
-                        let sudah_benar = NAMA_SUDAH_BENAR.iter().any(|&b| {
-                            lower == b || lower.starts_with(&format!("{}_", b.trim_end_matches(".pdf")))
-                        });
-
-                        // Masukkan folder klien ke antrean jika ada berkas belum standar atau ada event folder
-                        if path.is_dir() || !sudah_benar {
-                            let mut set = sedang_diproses_folder_watcher.lock().unwrap();
-                            if !set.contains(&client_folder) {
-                                set.insert(client_folder.clone());
-                                let _ = tx_folder.blocking_send(client_folder);
-                            }
+                        let mut set = sedang_diproses_folder_watcher.lock().unwrap();
+                        if !set.contains(&path) {
+                            set.insert(path.clone());
+                            let _ = tx_folder.blocking_send(path);
                         }
                     }
                 }
@@ -798,8 +748,8 @@ async fn main() -> notify::Result<()> {
 
     tokio::spawn(async move {
         while let Some(folder_path) = rx_folder.recv().await {
-            // Beri jeda 1200ms agar seluruh berkas dari scanner / copy-paste selesai ditulis sempurna
-            tokio::time::sleep(Duration::from_millis(1200)).await;
+            // Beri jeda 1500ms agar seluruh berkas dari scanner / copy-paste selesai ditulis sempurna
+            tokio::time::sleep(Duration::from_millis(1500)).await;
 
             if !folder_path.exists() || is_folder_dikecualikan(&folder_path) {
                 sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
@@ -811,7 +761,9 @@ async fn main() -> notify::Result<()> {
                 .map(|n| n.to_string_lossy().to_string())
                 .unwrap_or_else(|| "Folder".to_string());
 
-            // Tunggu seluruh berkas selesai ditulis oleh mesin scanner
+            catat_log(&format!("\n[Terdeteksi Folder Baru / Direname: '{}']", folder_name));
+
+            // Tunggu seluruh berkas selesai ditulis oleh mesin scanner / Windows Explorer
             if !tunggu_semua_file_siap(&folder_path).await {
                 catat_log(&format!(" -> Dilewati: Berkas di folder '{}' masih dikunci aplikasi lain.", folder_name));
                 sedang_diproses_folder_cleanup.lock().unwrap().remove(&folder_path);
@@ -822,7 +774,9 @@ async fn main() -> notify::Result<()> {
             let fp = folder_path.clone();
 
             tokio::task::spawn_blocking(move || {
-                let _ = audit_dan_perbaiki_satu_folder(&fp, &ocr);
+                let mut total_folder = 0;
+                let mut total_diperbaiki = 0;
+                audit_folder_rekursif(&fp, &ocr, &mut total_folder, &mut total_diperbaiki);
             })
             .await
             .unwrap_or(());
@@ -831,7 +785,7 @@ async fn main() -> notify::Result<()> {
         }
     });
 
-    catat_log("\n[Pemantau Realtime Aktif] Siap memproses folder: Tahap 1 (Pemisahan Bundel) -> Tahap 2 (Penamaan Berkas)...");
+    catat_log("\n[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...");
 
     // Tetap standby di latar belakang
     tokio::signal::ctrl_c().await.ok();
