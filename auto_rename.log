@@ -657,3 +657,649 @@ Seluruh folder klien aktif sudah terverifikasi dan rapi.
 
 [Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'EVA KRISTIYANTO'
   -> Pemeriksaan selesai. Seluruh berkas di 'EVA KRISTIYANTO' sudah tepat.
+
+[Mendeteksi Berkas Baru] Folder: TEST BUNDEL EVA | File: 20261015153000.pdf
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'TEST BUNDEL EVA'
+  [TEST BUNDEL EVA] Berkas '20261015153000.pdf': Kata kunci tidak dikenali (dibiarkan)
+  -> Pemeriksaan selesai. Seluruh berkas di 'TEST BUNDEL EVA' sudah tepat.
+ -> SUKSES diubah menjadi: "PPH.pdf"
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'TEST BUNDEL EVA'
+  -> Pemeriksaan selesai. Seluruh berkas di 'TEST BUNDEL EVA' sudah tepat.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Fitur           : Pemisahan Bundel Multi-Dokumen & Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Jika ada berkas bundel multi-dokumen, akan dipisahkan otomatis.
+Jika ada nama file yang masih salah, akan diperbaiki otomatis.
+------------------------------------------------------
+  [OKTAFIAN RIFQI SANJAYA] Berkas 'KTP.pdf': Kata kunci tidak dikenali (dibiarkan)
+  [Audit Folder] 'MAGESTHA ARMANDHA': Ditemukan 1 berkas yang salah nama. Memperbaiki...
+    * Berhasil diubah -> KTP_2.pdf
+------------------------------------------------------
+[AUDIT SELESAI] Total 21 folder klien diperiksa. Total 1 tindakan perbaikan.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses berkas baru & memisahkan bundel PDF secara otomatis...
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: test_event.pdf
+ -> Kata kunci tidak dikenali, nama file dibiarkan tetap: test_event.pdf
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: test_event.pdf
+ -> Kata kunci tidak dikenali, nama file dibiarkan tetap: test_event.pdf
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: test_event.pdf
+ -> Kata kunci tidak dikenali, nama file dibiarkan tetap: test_event.pdf
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: scan_danu.pdf
+ -> [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_danu.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+    * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH.pdf"
+    * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5]) -> "BPHTB.pdf"
+    * Berhasil dipisahkan: 'Cek' (halaman [6]) -> "Cek.pdf"
+    * Berhasil dipisahkan: 'Keabsahan' (halaman [7]) -> "Keabsahan.pdf"
+    * Berhasil dipisahkan: 'KK' (halaman [8]) -> "KK.pdf"
+    * Berhasil dipisahkan: 'KTP' (halaman [9]) -> "KTP.pdf"
+    * Berhasil dipisahkan: 'PBB' (halaman [10, 11]) -> "PBB.pdf"
+    * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan.pdf"
+ -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel 'scan_danu.pdf' telah dibersihkan.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Fitur           : Pemisahan Bundel Multi-Dokumen & Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Jika ada berkas bundel multi-dokumen, akan dipisahkan otomatis.
+Jika ada nama file yang masih salah, akan diperbaiki otomatis.
+------------------------------------------------------
+  [OKTAFIAN RIFQI SANJAYA] Berkas 'KTP.pdf': Kata kunci tidak dikenali (dibiarkan)
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Fitur           : Pemisahan Bundel Multi-Dokumen & Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Jika ada berkas bundel multi-dokumen, akan dipisahkan otomatis.
+Jika ada nama file yang masih salah, akan diperbaiki otomatis.
+------------------------------------------------------
+  [OKTAFIAN RIFQI SANJAYA] Berkas 'KTP.pdf': Kata kunci tidak dikenali (dibiarkan)
+  [Audit Folder] 'MAGESTHA ARMANDHA': Ditemukan 2 berkas yang salah nama. Memperbaiki...
+    * Berhasil diubah -> KTP_2.pdf
+    * Berhasil diubah -> Sertifikat_2.pdf
+------------------------------------------------------
+[AUDIT SELESAI] Total 22 folder klien diperiksa. Total 2 tindakan perbaikan.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses berkas baru & memisahkan bundel PDF secara otomatis...
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: scan_002.pdf
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'DANU'
+ -> SUKSES diubah menjadi: "Sertifikat.pdf"
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: scan_001.pdf
+ -> [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_001.pdf' memuat 3 dokumen berbeda. Memulai pemisahan berkas...
+    * Berhasil dipisahkan: 'AJB' (halaman [1]) -> "AJB.pdf"
+    * Berhasil dipisahkan: 'KTP' (halaman [2, 3, 4]) -> "KTP.pdf"
+    * Berhasil dipisahkan: 'PBB' (halaman [5, 6, 7, 8]) -> "PBB.pdf"
+ -> SUKSES! Seluruh 3 dokumen berhasil dipisahkan dan berkas bundel 'scan_001.pdf' telah dibersihkan.
+
+[Mendeteksi Berkas Baru] Folder: DANU | File: scan_003.pdf
+ -> [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_003.pdf' memuat 5 dokumen berbeda. Memulai pemisahan berkas...
+    * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH.pdf"
+    * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5, 6, 7]) -> "BPHTB.pdf"
+    * Berhasil dipisahkan: 'KK' (halaman [8]) -> "KK.pdf"
+    * Berhasil dipisahkan: 'KTP' (halaman [9, 10, 11]) -> "KTP_2.pdf"
+    * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan.pdf"
+    [Peringatan] Gagal menghapus berkas bundel asal 'scan_003.pdf': Access is denied. (os error 5)
+ -> [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_003.pdf' memuat 6 dokumen berbeda. Memulai pemisahan berkas...
+    * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH_2.pdf"
+    * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5]) -> "BPHTB_2.pdf"
+    * Berhasil dipisahkan: 'Cek' (halaman [6, 7, 8]) -> "Cek.pdf"
+    * Berhasil dipisahkan: 'KTP' (halaman [9, 10]) -> "KTP_3.pdf"
+    * Berhasil dipisahkan: 'PBB' (halaman [11]) -> "PBB_2.pdf"
+    * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan_2.pdf"
+    [Peringatan] Gagal menghapus berkas bundel asal 'scan_003.pdf': Access is denied. (os error 5)
+  [Audit Folder] 'DANU': Ditemukan 1 berkas yang salah nama. Memperbaiki...
+    * Berhasil diubah -> Sertifikat_2.pdf
+  -> Selesai! Sebanyak 6 berkas di 'DANU' telah diperbaiki.
+
+[Folder Aktif Terdeteksi / Di-rename Menjadi Kapital] Memeriksa berkas di folder: 'EVA KRISTIYANTO'
+  -> Pemeriksaan selesai. Seluruh berkas di 'EVA KRISTIYANTO' sudah tepat.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Tahap 1: Memisahkan file gabungan (bundel).
+Tahap 2: Menyesuaikan nama berkas tunggal (AJB, Sertipikat, dll).
+------------------------------------------------------
+
+[Memproses Folder Klien: 'OKTAFIAN RIFQI SANJAYA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     [OKTAFIAN RIFQI SANJAYA] Berkas 'KTP.pdf': Kata kunci tidak dikenali (dibiarkan)
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'M JAENUDIN']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SASMITA FITRIANA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NAFISATUS SAHRO WAJRACANI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'IRVIANA MAULIDAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'FATKHUR ROZAK']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ENGGA AYUN - OKTAVIANI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ISTIKOMAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SYAHRUL MUNIR']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SITI MUNTHOFI'AH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MUHAMMAD FADHLILLAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MAGESTHA ARMANDHA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MAGESTHA ARMANDHA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 1 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> KTP_2.pdf
+
+[Memproses Folder Klien: 'SAFIRA ALMALIA PUTRI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'IRVAN FIRMANSYAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ZIDANNIBROOS AL AHMED']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MOCHAMMAD FAKHRI ADHIPUTRA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NURUL HASANAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NANDHI ARIFTA TRISNA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MUHAMMAD JATI ARIYANTO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'EVA KRISTIYANTO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'DANU']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_003.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH.pdf"
+       * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5]) -> "BPHTB.pdf"
+       * Berhasil dipisahkan: 'Cek' (halaman [6]) -> "Cek.pdf"
+       * Berhasil dipisahkan: 'Keabsahan' (halaman [7]) -> "Keabsahan.pdf"
+       * Berhasil dipisahkan: 'KK' (halaman [8]) -> "KK.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [9]) -> "KTP.pdf"
+       * Berhasil dipisahkan: 'PBB' (halaman [10, 11]) -> "PBB.pdf"
+       * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan.pdf"
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel 'scan_003.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 2 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> Sertifikat.pdf
+       * Berhasil diubah -> AJB.pdf
+------------------------------------------------------
+[AUDIT SELESAI] Total 22 folder klien diperiksa. Total 11 tindakan perbaikan.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses folder: Tahap 1 (Pemisahan Bundel) -> Tahap 2 (Penamaan Berkas)...
+
+[Memproses Folder Klien: 'DANU']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas 'scan_003.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH.pdf"
+       * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5]) -> "BPHTB.pdf"
+       * Berhasil dipisahkan: 'Cek' (halaman [6]) -> "Cek.pdf"
+       * Berhasil dipisahkan: 'Keabsahan' (halaman [7]) -> "Keabsahan.pdf"
+       * Berhasil dipisahkan: 'KK' (halaman [8]) -> "KK.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [9]) -> "KTP.pdf"
+       * Berhasil dipisahkan: 'PBB' (halaman [10, 11]) -> "PBB.pdf"
+       * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan.pdf"
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel 'scan_003.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 2 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> Sertifikat.pdf
+       * Berhasil diubah -> AJB.pdf
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+------------------------------------------------------
+[AUDIT STARTUP] Memulai pengecekan seluruh folder klien...
+Tiap berkas diperiksa ulang isinya menggunakan OCR.
+Tahap 1: Memisahkan file gabungan (bundel).
+Tahap 2: Menyesuaikan nama berkas tunggal (AJB, Sertipikat, dll).
+------------------------------------------------------
+
+[Memproses Folder Klien: 'OKTAFIAN RIFQI SANJAYA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     [OKTAFIAN RIFQI SANJAYA] Berkas 'KTP.pdf': Kata kunci tidak dikenali (dibiarkan)
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'M JAENUDIN']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SASMITA FITRIANA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NAFISATUS SAHRO WAJRACANI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'IRVIANA MAULIDAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'FATKHUR ROZAK']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ENGGA AYUN - OKTAVIANI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ISTIKOMAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SYAHRUL MUNIR']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'SITI MUNTHOFI'AH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MUHAMMAD FADHLILLAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MAGESTHA ARMANDHA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MAGESTHA ARMANDHA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 1 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> KTP_2.pdf
+
+[Memproses Folder Klien: 'SAFIRA ALMALIA PUTRI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'IRVAN FIRMANSYAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'ZIDANNIBROOS AL AHMED']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MOCHAMMAD FAKHRI ADHIPUTRA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NURUL HASANAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'NANDHI ARIFTA TRISNA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'MUHAMMAD JATI ARIYANTO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'EVA KRISTIYANTO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Memproses Folder Klien: 'DANU']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+------------------------------------------------------
+[AUDIT SELESAI] Total 22 folder klien diperiksa. Total 1 tindakan perbaikan.
+Seluruh folder klien aktif sudah terverifikasi dan rapi.
+------------------------------------------------------
+
+[Pemantau Realtime Aktif] Siap memproses folder: Tahap 1 (Pemisahan Bundel) -> Tahap 2 (Penamaan Berkas)...
+
+[Memproses Folder Klien: 'MUHAMMAD NAUFAL']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 10 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> Permohonan.pdf
+       * Berhasil diubah -> Sertifikat.pdf
+       * Berhasil diubah -> PPH.pdf
+       * Berhasil diubah -> Cek.pdf
+       * Berhasil diubah -> KTP.pdf
+       * Berhasil diubah -> AJB.pdf
+       * Berhasil diubah -> KK.pdf
+       * Berhasil diubah -> Keabsahan.pdf
+       * Berhasil diubah -> BPHTB.pdf
+       * Berhasil diubah -> PBB.pdf
+
+[Memproses Folder Klien: 'ISTIKOMAH']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+
+[Terdeteksi Folder Baru / Direname: 'NAMA']
+
+[Memproses Folder Klien: 'NAMA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas 'merged file.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'PPH' (halaman [1, 2, 3]) -> "PPH.pdf"
+       * Berhasil dipisahkan: 'BPHTB' (halaman [4, 5]) -> "BPHTB.pdf"
+       * Berhasil dipisahkan: 'Cek' (halaman [6]) -> "Cek.pdf"
+       * Berhasil dipisahkan: 'Keabsahan' (halaman [7]) -> "Keabsahan.pdf"
+       * Berhasil dipisahkan: 'KK' (halaman [8]) -> "KK.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [9]) -> "KTP.pdf"
+       * Berhasil dipisahkan: 'PBB' (halaman [10, 11]) -> "PBB.pdf"
+       * Berhasil dipisahkan: 'Permohonan' (halaman [12]) -> "Permohonan.pdf"
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel 'merged file.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Semua nama berkas sudah tepat.
+
+[Terdeteksi Folder Baru / Direname: 'AGUNG PRAYOGO']
+
+[Memproses Folder Klien: 'AGUNG PRAYOGO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     [AGUNG PRAYOGO] Berkas '20261016014247.pdf': Kata kunci tidak dikenali (dibiarkan)
+     Ditemukan 2 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> Sertifikat.pdf
+       * Berhasil diubah -> AJB.pdf
+
+[Terdeteksi Folder Baru / Direname: 'AGUNG PRAYOGO']
+
+[Memproses Folder Klien: 'AGUNG PRAYOGO']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016015124.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'PBB' (halaman [1, 2]) -> "PBB.pdf"
+       * Berhasil dipisahkan: 'BPHTB' (halaman [3, 4]) -> "BPHTB.pdf"
+       * Berhasil dipisahkan: 'PPH' (halaman [5, 6, 7]) -> "PPH.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [8]) -> "KTP.pdf"
+       * Berhasil dipisahkan: 'KK' (halaman [9]) -> "KK.pdf"
+       * Berhasil dipisahkan: 'Permohonan' (halaman [10]) -> "Permohonan.pdf"
+       * Berhasil dipisahkan: 'Keabsahan' (halaman [11]) -> "Keabsahan.pdf"
+       * Berhasil dipisahkan: 'Cek' (halaman [12]) -> "Cek.pdf"
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel '20261016015124.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa dan menyesuaikan nama berkas (AJB, Sertipikat, dll)...
+     Ditemukan 2 berkas yang salah nama. Memperbaiki...
+       * Berhasil diubah -> Sertifikat.pdf
+       * Berhasil diubah -> AJB.pdf
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename | Auto-Deskew (Meluruskan Halaman Miring)
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Tahap 1: Split Bundel | Tahap 2: Auto-Rename | Auto-Deskew (Meluruskan Halaman Miring)
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Split Bundel | Auto-Rename (PT & Perorangan) | Auto-Deskew
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+
+[Terdeteksi Folder Baru / Direname: 'UMIYATI']
+
+[Memproses Folder Klien: 'UMIYATI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016022905.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [1]) -> "Keabsahan.pdf"
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [2, 3]) -> "PBB.pdf"
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [4, 5]) -> "BPHTB.pdf"
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [6, 7, 8]) -> "PPH.pdf"
+       * Berhasil dipisahkan & diluruskan: 'KTP' (halaman [9]) -> "KTP.pdf"
+       * Berhasil dipisahkan & diluruskan: 'KK' (halaman [10, 11, 12, 13]) -> "KK.pdf"
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [14]) -> "Permohonan.pdf"
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [15]) -> "Cek.pdf"
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel '20261016022905.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PERORANGAN (Bukan PT). Mengaktifkan pengecekan 3 KTP (PENJUAL, PERSETUJUAN, PEMBELI)...
+       [Pengecekan KTP] 'KTP.pdf' -> KTP.pdf (Skor: Penjual=0, Persetujuan=0, Pembeli=0)
+     Ditemukan 2 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Split Bundel | Auto-Rename (PT & Perorangan) | Auto-Deskew
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+
+[Memproses Folder Klien: 'UMIYATI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas 'PPH.pdf' memuat 2 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'PPH' (halaman [1, 2]) -> "PPH.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [3]) -> "KTP_2.pdf"
+     -> SUKSES! Seluruh 2 dokumen berhasil dipisahkan dan berkas bundel 'PPH.pdf' telah dibersihkan.
+     [BERKAS BUNDEL TERDETEKSI] Berkas 'KK.pdf' memuat 4 dokumen berbeda. Memulai pemisahan berkas...
+       * Berhasil dipisahkan: 'KK' (halaman [1]) -> "KK.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [2]) -> "KTP_3.pdf"
+       * Berhasil dipisahkan: 'KTP' (halaman [3]) -> "KTP_4.pdf"
+       * Berhasil dipisahkan: 'KK' (halaman [4]) -> "KK_2.pdf"
+     -> SUKSES! Seluruh 4 dokumen berhasil dipisahkan dan berkas bundel 'KK.pdf' telah dibersihkan.
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [UMIYATI] Berkas 'KTP_4.pdf': Kata kunci tidak dikenali (dibiarkan)
+     [UMIYATI] Berkas 'KTP_3.pdf': Kata kunci tidak dikenali (dibiarkan)
+     [UMIYATI] Berkas 'KTP_2.pdf': Kata kunci tidak dikenali (dibiarkan)
+     [UMIYATI] Berkas 'KK_2.pdf': Kata kunci tidak dikenali (dibiarkan)
+     [Status AJB] Penjual terdeteksi: PERORANGAN (Bukan PT). Mengaktifkan pengecekan KTP & KK (PENJUAL, PERSETUJUAN, PEMBELI)...
+       [Pengecekan KTP] 'KTP.pdf' -> KTP PEMBELI.pdf (Skor: Penjual=0, Persetujuan=0, Pembeli=45)
+     Ditemukan 1 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah -> KTP PEMBELI.pdf
+
+[Memproses Folder Klien: 'UMIYATI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     (Tidak ada file gabungan yang perlu dipisahkan)
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PERORANGAN (Bukan PT). Mengaktifkan pengecekan KTP & KK (PENJUAL, PERSETUJUAN, PEMBELI)...
+       [Pengecekan KK] 'KK PEMBELI.pdf' -> KK PEMBELI.pdf (Skor: Pembeli=440, Penjual=0)
+       [Pengecekan KK] 'KK PENJUAL.pdf' -> KK PENJUAL.pdf (Skor: Pembeli=20, Penjual=495)
+       [Pengecekan KTP] 'KTP PEMBELI.pdf' -> KTP PEMBELI.pdf (Skor: Penjual=0, Persetujuan=0, Pembeli=170)
+       [Pengecekan KTP] 'KTP PENJUAL.pdf' -> KTP PENJUAL.pdf (Skor: Penjual=150, Persetujuan=0, Pembeli=20)
+       [Pengecekan KTP] 'KTP PERSETUJUAN.pdf' -> KTP PERSETUJUAN.pdf (Skor: Penjual=0, Persetujuan=150, Pembeli=0)
+     Semua nama berkas dan orientasi posisi sudah tepat.
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Split Bundel | Auto-Rename (PT & Perorangan) | Auto-Deskew
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
