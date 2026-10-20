@@ -1303,3 +1303,135 @@ Folder target terhubung! Menginisialisasi OCR...
 Folder target terhubung! Menginisialisasi OCR...
 
 [Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+
+[Terdeteksi Folder Baru / Direname: 'ANANDA FIKRI NIRANDI']
+
+[Memproses Folder Klien: 'ANANDA FIKRI NIRANDI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016022414.pdf' memuat 7 dokumen berbeda. Memulai pemisahan berkas...
+     -> SUKSES! Seluruh 7 dokumen berhasil dipisahkan dan berkas bundel '20261016022414.pdf' telah dibersihkan.
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [1]) -> Keabsahan.pdf
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [2, 3, 4]) -> PPH.pdf
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [5, 6]) -> BPHTB.pdf
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [7, 8, 9]) -> PBB.pdf
+       * Berhasil dipisahkan: 'KK' (halaman [10]) -> KK.pdf
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [11]) -> Permohonan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [12]) -> Cek.pdf
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PT. Berkas KTP diproses standar (KTP.pdf)...
+     Ditemukan 2 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+
+[Terdeteksi Folder Baru / Direname: 'ANISAPUTRI']
+
+[Memproses Folder Klien: 'ANISAPUTRI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016025534.pdf' memuat 9 dokumen berbeda. Memulai pemisahan berkas...
+     -> SUKSES! Seluruh 9 dokumen berhasil dipisahkan dan berkas bundel '20261016025534.pdf' telah dibersihkan.
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [1]) -> Keabsahan.pdf
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [2, 3]) -> PBB.pdf
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [4, 5]) -> BPHTB.pdf
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [6, 7, 8]) -> PPH.pdf
+       * Berhasil dipisahkan: 'KTP' (halaman [9]) -> KTP.pdf
+       * Berhasil dipisahkan: 'KK' (halaman [10]) -> KK.pdf
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [11]) -> Permohonan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Sertifikat' (halaman [12]) -> Sertifikat.pdf
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [13]) -> Cek.pdf
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PT. Berkas KTP diproses standar (KTP.pdf)...
+     Ditemukan 2 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat_2.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+
+[Terdeteksi Folder Baru / Direname: 'ARWANI']
+
+[Memproses Folder Klien: 'ARWANI']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016023522.pdf' memuat 10 dokumen berbeda. Memulai pemisahan berkas...
+     -> SUKSES! Seluruh 10 dokumen berhasil dipisahkan dan berkas bundel '20261016023522.pdf' telah dibersihkan.
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [1]) -> Permohonan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [2]) -> Keabsahan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [3]) -> Cek.pdf
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [4, 5]) -> PBB.pdf
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [6, 7]) -> BPHTB.pdf
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [8, 9]) -> PPH.pdf
+       * Berhasil dipisahkan & diluruskan: 'KTP' (halaman [10]) -> KTP.pdf
+       * Berhasil dipisahkan: 'KK' (halaman [11]) -> KK.pdf
+       * Berhasil dipisahkan & diluruskan: 'KTP' (halaman [12]) -> KTP_2.pdf
+       * Berhasil dipisahkan: 'KK' (halaman [13]) -> KK_2.pdf
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PERORANGAN (Bukan PT). Mengaktifkan pengecekan KTP & KK (PENJUAL, PERSETUJUAN, PEMBELI)...
+       [Pengecekan KK] 'KK.pdf' -> KK PEMBELI.pdf (Skor: Pembeli=330, Penjual=40)
+       [Pengecekan KK] 'KK_2.pdf' -> KK PENJUAL.pdf (Skor: Pembeli=20, Penjual=20)
+       [Pengecekan KTP] 'KTP.pdf' -> KTP PEMBELI.pdf (Skor: Penjual=0, Persetujuan=0, Pembeli=25)
+       [Pengecekan KTP] 'KTP_2.pdf' -> KTP PENJUAL.pdf (Skor: Penjual=70, Persetujuan=55, Pembeli=40)
+     Ditemukan 6 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+       * Berhasil diubah -> KK PEMBELI.pdf
+       * Berhasil diubah -> KK PENJUAL.pdf
+       * Berhasil diubah -> KTP PEMBELI.pdf
+       * Berhasil diubah -> KTP PENJUAL.pdf
+
+[Terdeteksi Folder Baru / Direname: 'BAYU SAPUTRA']
+
+[Memproses Folder Klien: 'BAYU SAPUTRA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016024817.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel '20261016024817.pdf' telah dibersihkan.
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [1]) -> Keabsahan.pdf
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [2, 3]) -> PBB.pdf
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [4, 5]) -> BPHTB.pdf
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [6, 7, 8]) -> PPH.pdf
+       * Berhasil dipisahkan & diluruskan: 'KTP' (halaman [9]) -> KTP.pdf
+       * Berhasil dipisahkan: 'KTP' (halaman [10]) -> KTP_2.pdf
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [11]) -> Permohonan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [12]) -> Cek.pdf
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PT. Berkas KTP diproses standar (KTP.pdf)...
+     Ditemukan 2 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+
+[Terdeteksi Folder Baru / Direname: 'RIZAL ZAKARIA']
+
+[Memproses Folder Klien: 'RIZAL ZAKARIA']
+  -> [TAHAP 1] Mencari dan memisahkan file gabungan (bundel)...
+     [BERKAS BUNDEL TERDETEKSI] Berkas '20261016020340.pdf' memuat 8 dokumen berbeda. Memulai pemisahan berkas...
+     -> SUKSES! Seluruh 8 dokumen berhasil dipisahkan dan berkas bundel '20261016020340.pdf' telah dibersihkan.
+       * Berhasil dipisahkan & diluruskan: 'Keabsahan' (halaman [1]) -> Keabsahan.pdf
+       * Berhasil dipisahkan & diluruskan: 'PPH' (halaman [2, 3, 4]) -> PPH.pdf
+       * Berhasil dipisahkan & diluruskan: 'PBB' (halaman [5, 6]) -> PBB.pdf
+       * Berhasil dipisahkan & diluruskan: 'BPHTB' (halaman [7]) -> BPHTB.pdf
+       * Berhasil dipisahkan: 'KTP' (halaman [8]) -> KTP.pdf
+       * Berhasil dipisahkan: 'KK' (halaman [9]) -> KK.pdf
+       * Berhasil dipisahkan & diluruskan: 'Permohonan' (halaman [10]) -> Permohonan.pdf
+       * Berhasil dipisahkan & diluruskan: 'Cek' (halaman [11]) -> Cek.pdf
+  -> [TAHAP 2] Memeriksa, menyesuaikan nama berkas & meluruskan posisi halaman...
+     [Status AJB] Penjual terdeteksi: PT. Berkas KTP diproses standar (KTP.pdf)...
+     Ditemukan 2 berkas yang perlu disesuaikan namanya. Memperbaiki...
+       * Berhasil diubah & diluruskan -> Sertifikat.pdf
+       * Berhasil diubah & diluruskan -> AJB.pdf
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Split Bundel | Auto-Rename (PT & Perorangan) | Auto-Deskew
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
+======================================================
+ AUTO-RENAME NOTARIS AKTIF (NATIVE WINRT PDF & OCR) 
+ Memantau Folder : G:\My Drive\notaris bu sri\Pihak Kedua
+ Mode Pantau     : Khusus Folder Baru & Folder yang Direname
+ Fitur           : Split Bundel | Auto-Rename (PT & Perorangan) | Auto-Deskew
+ Pengecualian    : Folder tidak kapital semua dilewati (finish, revisi, old data, dll)
+======================================================
+Menunggu Google Drive (G:\) terhubung dan siap...
+Folder target terhubung! Menginisialisasi OCR...
+
+[Pemantau Realtime Aktif] Memantau folder baru dan folder yang direname (hemat sumber daya)...
